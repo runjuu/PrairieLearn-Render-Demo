@@ -1,0 +1,17 @@
+<pl-question-panel>
+  <p>Select every statement that is true for this function.</p>
+  <pl-code language="python">
+def total(values):
+    acc = 0
+    for value in values:
+        acc += value
+    return acc
+  </pl-code>
+</pl-question-panel>
+
+<pl-checkbox answers-name="facts" fixed-order="true" partial-credit="true">
+  <pl-answer correct="true">The function returns the sum of the input values.</pl-answer>
+  <pl-answer correct="true">The loop visits each value in the input list.</pl-answer>
+  <pl-answer>The function mutates the input list.</pl-answer>
+  <pl-answer>The initial accumulator value is one.</pl-answer>
+</pl-checkbox>

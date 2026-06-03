@@ -1,0 +1,24 @@
+{
+  "uuid": "4b962ed1-5f9b-4670-8856-1221a4a69a9f",
+  "name": "PrairieLearn Render Demo",
+  "title": "PrairieLearn Render Demo",
+  "assessmentSets": [
+    {
+      "abbreviation": "DEMO",
+      "name": "Demo",
+      "heading": "Demo",
+      "color": "green1"
+    }
+  ],
+  "topics": [
+    {
+      "name": "Rendering",
+      "color": "blue1",
+      "description": "Questions used by the render demo"
+    }
+  ],
+  "tags": [],
+  "options": {
+    "useNewQuestionRenderer": true
+  }
+}

@@ -1,0 +1,3 @@
+[submodule "PrairieLearn"]
+	path = PrairieLearn
+	url = git@github.com:runjuu/PrairieLearn.git
