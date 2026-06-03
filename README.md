@@ -27,18 +27,17 @@ npm install
 Build the nested PrairieLearn preview renderer:
 
 ```sh
-cd PrairieLearn
-corepack enable
-yarn install
-make python-deps-core
-yarn workspaces foreach -Rp --topological-dev --from @prairielearn/prairielearn run build
-cd ..
+npm run setup:prairielearn
 ```
+
+This command runs the PrairieLearn dependency install, Python setup, and build needed to create
+`PrairieLearn/apps/prairielearn/dist/cli/preview-render.js`.
 
 ## Run
 
 ```sh
 npm run build:css
+npm run setup:prairielearn
 npm start
 ```
 

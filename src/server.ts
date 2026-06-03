@@ -299,7 +299,20 @@ export async function renderWithPrairieLearnCli({
   urlPrefix: string;
   variantSeed: string;
 }): Promise<PreviewResult> {
-  await fs.access(renderScript);
+  try {
+    await fs.access(renderScript);
+  } catch (error) {
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+      throw new Error(
+        [
+          `PrairieLearn preview renderer is missing: ${renderScript}`,
+          'Run `npm run setup:prairielearn` from the demo repo, then restart `npm start`.',
+          'If the PrairieLearn submodule is missing, first run `git submodule update --init --recursive`.',
+        ].join('\n'),
+      );
+    }
+    throw error;
+  }
 
   const stdout = boundedTextCollector(MAX_RENDER_OUTPUT_BYTES);
   const stderr = boundedTextCollector(MAX_RENDER_OUTPUT_BYTES);

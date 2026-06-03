@@ -124,4 +124,29 @@ describe('review server', () => {
     assert.match(frame, /Attempt head/);
     assert.match(frame, /Rendered body/);
   });
+
+  it('returns an actionable diagnostic when the PrairieLearn renderer is missing', async () => {
+    const { courseDir, root } = await makeCourse();
+    const app = createApp({
+      courseDir,
+      projectRoot: root,
+      renderScript: path.join(root, 'missing-preview-render.js'),
+    });
+
+    const response = await app.request('/api/preview', {
+      body: JSON.stringify({ qid: 'alpha/question' }),
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
+    });
+
+    assert.equal(response.status, 422);
+    const body = (await response.json()) as {
+      diagnostics: Array<{ message: string; name: string }>;
+      ok: boolean;
+    };
+
+    assert.equal(body.ok, false);
+    assert.equal(body.diagnostics[0]?.name, 'PreviewSetupError');
+    assert.match(body.diagnostics[0]?.message ?? '', /npm run setup:prairielearn/);
+  });
 });

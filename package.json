@@ -7,6 +7,7 @@
     "build": "npm run build:css && npm run typecheck",
     "build:css": "tailwindcss -i ./src/styles.css -o ./public/styles.css",
     "dev": "tsx watch src/server.ts",
+    "setup:prairielearn": "node scripts/setup-prairielearn.mjs",
     "start": "tsx src/server.ts",
     "test": "tsx --test tests/*.test.ts",
     "typecheck": "tsgo --noEmit"
