@@ -1,13 +1,20 @@
 {
   "compilerOptions": {
     "allowImportingTsExtensions": true,
-    "module": "preserve",
+    "esModuleInterop": true,
+    "incremental": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "lib": ["dom", "dom.iterable", "es2024"],
+    "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
-    "rootDir": ".",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
     "strict": true,
     "target": "ES2024",
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"]
+  "include": ["app/**/*.ts", "app/**/*.tsx", "next-env.d.ts", "tests/**/*.ts", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }
