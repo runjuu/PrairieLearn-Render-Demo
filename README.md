@@ -43,6 +43,10 @@ npm start
 
 Open `http://127.0.0.1:4310`.
 
+`npm start` starts PrairieLearn's preview renderer in warm `--serve` mode and prewarms the worker
+before the web server begins listening. Startup can take a moment, but previews reuse that renderer
+session instead of launching a new PrairieLearn process for each question.
+
 The first page lists the demo questions. Select a question to render a preview. The preview page has
 only Back and New variant controls; it does not edit, save, parse, grade, or submit answers.
 

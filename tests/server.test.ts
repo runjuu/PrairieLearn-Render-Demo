@@ -85,7 +85,7 @@ describe('review server', () => {
       {
         attemptId: body.previewUrl.split('/')[2],
         qid: 'alpha/question',
-        urlPrefix: `/preview-assets/${body.previewUrl.split('/')[2]}`,
+        urlPrefix: '/preview-assets',
         variantSeed: 'abc123',
       },
     ]);
