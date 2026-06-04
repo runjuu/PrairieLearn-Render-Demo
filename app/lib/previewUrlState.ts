@@ -29,8 +29,8 @@ export function appSearchForSelection({
 }
 
 export function randomBase36Variant(): string {
-  const bytes = new Uint32Array(2);
+  const bytes = new Uint32Array(1);
   crypto.getRandomValues(bytes);
-  const value = bytes[0] * 0x100000000 + bytes[1];
+  const value = bytes[0] === 0 ? 1 : bytes[0];
   return value.toString(36);
 }

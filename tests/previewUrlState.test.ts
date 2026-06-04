@@ -32,4 +32,13 @@ describe('preview URL state', () => {
   it('generates non-empty base36 variant seeds', () => {
     assert.match(randomBase36Variant(), /^[0-9a-z]+$/);
   });
+
+  it('generates PrairieLearn-compatible 32-bit variant seeds', () => {
+    const seed = randomBase36Variant();
+    const parsed = Number.parseInt(seed, 36);
+
+    assert.ok(Number.isSafeInteger(parsed));
+    assert.ok(parsed >= 1);
+    assert.ok(parsed <= 0xffffffff);
+  });
 });
