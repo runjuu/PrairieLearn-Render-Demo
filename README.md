@@ -7,6 +7,58 @@ The key idea is that your app owns discovery, navigation, state, and layout, whi
 owns question rendering. This demo implements that split with a small Next.js app that discovers
 questions from a local course directory and embeds direct PrairieLearn preview URLs in an iframe.
 
+## Run the demo
+
+Requirements:
+
+- Node.js 24 or newer.
+- `pnpm`.
+- `uv`.
+
+Clone this repo:
+
+```sh
+git clone --recurse-submodules git@github.com:runjuu/PrairieLearn-Render-Demo.git
+cd PrairieLearn-Render-Demo
+```
+
+If you already cloned without submodules, initialize the bundled PrairieLearn checkout:
+
+```sh
+git submodule update --init
+```
+
+Install dependencies:
+
+```sh
+pnpm install
+pnpm --dir PrairieLearn install --frozen-lockfile
+make -C PrairieLearn python-deps
+pnpm --dir PrairieLearn --filter '@prairielearn/prairielearn^...' run build
+pnpm --dir PrairieLearn --filter @prairielearn/prairielearn exec compiled-assets build ./assets ./public/build
+```
+
+Start the PrairieLearn preview server:
+
+```sh
+pnpm run render:server
+```
+
+In another terminal, start the Next.js preview app:
+
+```sh
+pnpm run dev
+```
+
+Open the app:
+
+```text
+http://localhost:3000
+```
+
+The Next.js app discovers questions from `demo-course/questions/**/info.json`, renders the question
+list, and points the iframe directly at the selected preview URL.
+
 ## What this demonstrates
 
 - Starting PrairieLearn's standalone Local Preview Server against a local course.
@@ -72,41 +124,6 @@ rendering API or proxy those files.
 The preview server does not provide a question catalog. Your app should discover or receive the list
 of previewable questions from a source that fits your product, such as local `info.json` files, an
 editor workspace, a search index, or an application database.
-
-## Run the demo
-
-Requirements:
-
-- Node.js 24 or newer.
-- `pnpm`.
-
-Install dependencies:
-
-```sh
-pnpm install
-pnpm --dir PrairieLearn install --frozen-lockfile
-```
-
-Start the PrairieLearn preview server:
-
-```sh
-pnpm run render:server
-```
-
-In another terminal, start the Next.js preview app:
-
-```sh
-pnpm run dev
-```
-
-Open the app:
-
-```text
-http://localhost:3000
-```
-
-The Next.js app discovers questions from `demo-course/questions/**/info.json`, renders the question
-list, and points the iframe directly at the selected preview URL.
 
 ## Use your own course
 
