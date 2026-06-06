@@ -6,22 +6,15 @@ import type { PreviewQuestion } from './lib/previewDiscovery.ts';
 import {
   appSearchForSelection,
   directPreviewUrlForSelection,
+  type PreviewSelection,
   randomBase36Variant,
 } from './lib/previewUrlState.ts';
 
 interface PreviewSelectorProps {
   discoveryError: string | null;
+  initialSelection: PreviewSelection;
   previewServerUrl: string;
   questions: PreviewQuestion[];
-}
-
-function initialSelection(questions: PreviewQuestion[]) {
-  if (typeof window === 'undefined') return { qid: '', variant: '1' };
-  const params = new URLSearchParams(window.location.search);
-  const qid = params.get('qid') ?? '';
-  const variant = params.get('variant') || '1';
-  if (!questions.some((question) => question.qid === qid)) return { qid: '', variant: '1' };
-  return { qid, variant };
 }
 
 function displayMeta(question: PreviewQuestion) {
@@ -37,9 +30,14 @@ function replaceSelectionUrl(qid: string, variant: string) {
   window.history.replaceState(null, '', `${window.location.pathname}${nextSearch}`);
 }
 
-export function PreviewSelector({ discoveryError, previewServerUrl, questions }: PreviewSelectorProps) {
+export function PreviewSelector({
+  discoveryError,
+  initialSelection,
+  previewServerUrl,
+  questions,
+}: PreviewSelectorProps) {
   const [filter, setFilter] = useState('');
-  const [selection, setSelection] = useState(() => initialSelection(questions));
+  const [selection, setSelection] = useState(() => initialSelection);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const filteredQuestions = useMemo(() => {

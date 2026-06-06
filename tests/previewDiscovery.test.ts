@@ -1,63 +1,70 @@
 import assert from 'node:assert/strict';
-import http from 'node:http';
-import { after, describe, it } from 'node:test';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { after, beforeEach, describe, it } from 'node:test';
 
-import { discoverPreviewQuestions, previewServerUrlFromEnv } from '../app/lib/previewDiscovery.ts';
+import {
+  discoverPreviewQuestions,
+  isPreviewableQid,
+  previewCourseDirFromEnv,
+  previewServerUrlFromEnv,
+} from '../app/lib/previewDiscovery.ts';
 
-function listen(server: http.Server): Promise<number> {
-  return new Promise((resolve, reject) => {
-    server.listen(0, '127.0.0.1', () => {
-      const address = server.address();
-      if (typeof address === 'object' && address) resolve(address.port);
-      else reject(new Error('Server did not bind to a TCP port.'));
-    });
-  });
+async function writeQuestionInfo(courseDir: string, qid: string, infoJson: unknown) {
+  const questionDir = path.join(courseDir, 'questions', ...qid.split('/'));
+  await fs.mkdir(questionDir, { recursive: true });
+  await fs.writeFile(path.join(questionDir, 'info.json'), JSON.stringify(infoJson));
 }
 
 describe('PrairieLearn preview discovery', () => {
-  const servers: http.Server[] = [];
+  const tempRoots: string[] = [];
+  let courseDir: string;
+
+  beforeEach(async () => {
+    courseDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pl-preview-discovery-test-'));
+    tempRoots.push(courseDir);
+  });
 
   after(async () => {
-    await Promise.all(
-      servers.map(
-        (server) =>
-          new Promise<void>((resolve, reject) => {
-            server.close((error) => (error ? reject(error) : resolve()));
-          }),
-      ),
+    await Promise.all(tempRoots.map((root) => fs.rm(root, { force: true, recursive: true })));
+  });
+
+  it('normalizes the configured PrairieLearn preview server URL', () => {
+    assert.equal(
+      previewServerUrlFromEnv({
+        PL_PREVIEW_SERVER_URL: 'http://127.0.0.1:4310/',
+      }),
+      'http://127.0.0.1:4310',
     );
   });
 
-  it('fetches questions from the configured PrairieLearn preview server', async () => {
-    const requestedPaths: string[] = [];
-    const server = http.createServer((request, response) => {
-      requestedPaths.push(request.url ?? '');
-      response.writeHead(200, { 'content-type': 'application/json' });
-      response.end(
-        JSON.stringify({
-          questions: [
-            {
-              previewUrl: '/questions/unit/alpha?variant=1',
-              qid: 'unit/alpha',
-              title: 'Alpha question',
-              topic: 'Rendering',
-              type: 'v3',
-            },
-          ],
-        }),
-      );
-    });
-    servers.push(server);
-    const port = await listen(server);
+  it('resolves the configured preview course directory', () => {
+    assert.equal(previewCourseDirFromEnv({ PL_PREVIEW_COURSE_DIR: courseDir }), courseDir);
+  });
 
-    const previewServerUrl = previewServerUrlFromEnv({
-      PL_PREVIEW_SERVER_URL: `http://127.0.0.1:${port}/`,
+  it('parses question metadata from course info.json files', async () => {
+    await writeQuestionInfo(courseDir, 'unit/alpha', {
+      title: 'Alpha question',
+      topic: 'Rendering',
+      type: 'v3',
     });
-    const questions = await discoverPreviewQuestions(previewServerUrl);
+    await writeQuestionInfo(courseDir, 'beta', {
+      title: 'Beta question',
+      tags: ['example'],
+      type: 'v3',
+    });
 
-    assert.equal(previewServerUrl, `http://127.0.0.1:${port}`);
-    assert.deepEqual(requestedPaths, ['/api/questions']);
+    const questions = await discoverPreviewQuestions(courseDir);
+
     assert.deepEqual(questions, [
+      {
+        previewUrl: '/questions/beta?variant=1',
+        qid: 'beta',
+        title: 'Beta question',
+        topic: null,
+        type: 'v3',
+      },
       {
         previewUrl: '/questions/unit/alpha?variant=1',
         qid: 'unit/alpha',
@@ -66,5 +73,64 @@ describe('PrairieLearn preview discovery', () => {
         type: 'v3',
       },
     ]);
+  });
+
+  it('stops recursing once a directory is identified as a question', async () => {
+    await writeQuestionInfo(courseDir, 'outer', {
+      title: 'Outer',
+      topic: 'Rendering',
+      type: 'v3',
+    });
+    await writeQuestionInfo(courseDir, 'outer/inner', {
+      title: 'Inner',
+      topic: 'Rendering',
+      type: 'v3',
+    });
+
+    const questions = await discoverPreviewQuestions(courseDir);
+
+    assert.deepEqual(
+      questions.map((question) => question.qid),
+      ['outer'],
+    );
+  });
+
+  it('keeps malformed question directories visible in the list', async () => {
+    const questionDir = path.join(courseDir, 'questions', 'broken');
+    await fs.mkdir(questionDir, { recursive: true });
+    await fs.writeFile(path.join(questionDir, 'info.json'), '{');
+
+    const questions = await discoverPreviewQuestions(courseDir);
+
+    assert.deepEqual(questions, [
+      {
+        previewUrl: '/questions/broken?variant=1',
+        qid: 'broken',
+        title: 'broken',
+        topic: null,
+        type: 'invalid-info-json',
+      },
+    ]);
+  });
+
+  it('uses the preview server qid rules when discovering questions', async () => {
+    await writeQuestionInfo(courseDir, 'valid/nested', {
+      title: 'Valid',
+      topic: 'Rendering',
+      type: 'v3',
+    });
+
+    const invalidQuestionDir = path.join(courseDir, 'questions', 'bad\\qid');
+    await fs.mkdir(invalidQuestionDir, { recursive: true });
+    await fs.writeFile(path.join(invalidQuestionDir, 'info.json'), '{}');
+
+    const questions = await discoverPreviewQuestions(courseDir);
+
+    assert.equal(isPreviewableQid('valid/nested'), true);
+    assert.equal(isPreviewableQid('bad\\qid'), false);
+    assert.deepEqual(
+      questions.map((question) => question.qid),
+      ['valid/nested'],
+    );
   });
 });

@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 import {
   appSearchForSelection,
   directPreviewUrlForSelection,
+  previewSelectionFromSearchParams,
   randomBase36Variant,
 } from '../app/lib/previewUrlState.ts';
 
@@ -26,6 +27,36 @@ describe('preview URL state', () => {
         variant: 'abc123',
       }),
       '?filter=alpha&qid=unit%2Falpha&variant=abc123',
+    );
+  });
+
+  it('derives initial selection from valid app search params', () => {
+    assert.deepEqual(
+      previewSelectionFromSearchParams({
+        questions: [{ qid: 'render-boundary' }],
+        searchParams: { qid: 'render-boundary', variant: 'abc123' },
+      }),
+      { qid: 'render-boundary', variant: 'abc123' },
+    );
+  });
+
+  it('defaults to no selection for stale app search params', () => {
+    assert.deepEqual(
+      previewSelectionFromSearchParams({
+        questions: [{ qid: 'render-boundary' }],
+        searchParams: { qid: 'missing', variant: 'abc123' },
+      }),
+      { qid: '', variant: '1' },
+    );
+  });
+
+  it('defaults the initial variant when the app search params omit it', () => {
+    assert.deepEqual(
+      previewSelectionFromSearchParams({
+        questions: [{ qid: 'render-boundary' }],
+        searchParams: { qid: ['render-boundary'] },
+      }),
+      { qid: 'render-boundary', variant: '1' },
     );
   });
 

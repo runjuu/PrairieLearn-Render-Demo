@@ -1,0 +1,8 @@
+packages: []
+
+overrides:
+  postcss: ^8.5.10
+
+allowBuilds:
+  esbuild: false
+  sharp: false

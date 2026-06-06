@@ -1,3 +1,28 @@
+export interface PreviewSelection {
+  qid: string;
+  variant: string;
+}
+
+type PreviewSearchParams = Record<string, string | string[] | undefined>;
+
+function firstSearchParam(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export function previewSelectionFromSearchParams({
+  questions,
+  searchParams,
+}: {
+  questions: Array<{ qid: string }>;
+  searchParams: PreviewSearchParams;
+}): PreviewSelection {
+  const qid = firstSearchParam(searchParams.qid) ?? '';
+  const variant = firstSearchParam(searchParams.variant) || '1';
+
+  if (!questions.some((question) => question.qid === qid)) return { qid: '', variant: '1' };
+  return { qid, variant };
+}
+
 export function directPreviewUrlForSelection({
   previewServerUrl,
   previewUrl,
