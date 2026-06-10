@@ -3,7 +3,7 @@ import random
 
 def generate(data):
     rng = random.Random(data["variant_seed"])
-    left = rng.randint(4, 18)
+    left = rng.randint(40, 180)
     right = rng.randint(5, 21)
 
     data["params"]["left"] = left
