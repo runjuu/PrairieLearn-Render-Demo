@@ -8,7 +8,7 @@
     "build": "next build",
     "dev": "next dev",
     "render:server": "pnpm run render:server:start",
-    "render:server:start": "pnpm --dir PrairieLearn --filter @prairielearn/prairielearn exec tsx --tsconfig src/tsconfig.json src/preview-server.ts --course-dir \"${PL_PREVIEW_COURSE_DIR:-$PWD/demo-course}\" --host \"${PL_PREVIEW_SERVER_HOST:-127.0.0.1}\" --port \"${PL_PREVIEW_SERVER_PORT:-4310}\"",
+    "render:server:start": "pnpm --dir PrairieLearn --filter @prairielearn/prairielearn exec tsx --tsconfig src/tsconfig.json src/preview-server.ts --course-dir \"${PL_PREVIEW_COURSE_DIR:-$PWD/demo-course}\" --host \"${PL_PREVIEW_SERVER_HOST:-127.0.0.1}\" --port \"${PL_PREVIEW_SERVER_PORT:-4310}\" --workers-execution-mode \"${PL_PREVIEW_WORKERS_EXECUTION_MODE:-native}\"",
     "start": "next start",
     "test": "tsx --test tests/*.test.ts",
     "typecheck": "tsgo --noEmit"

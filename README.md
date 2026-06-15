@@ -145,6 +145,9 @@ The preview-server wrapper script also reads:
 
 - `PL_PREVIEW_SERVER_HOST`, default `127.0.0.1`.
 - `PL_PREVIEW_SERVER_PORT`, default `4310`.
+- `PL_PREVIEW_WORKERS_EXECUTION_MODE`, default `native`. The preview server's own default is
+  `container` (Docker-isolated), but this demo pins `native` so it runs without Docker. Set this to
+  `container` to run question code inside a Docker container instead.
 
 ## Building your own preview app
 
