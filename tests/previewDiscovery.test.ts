@@ -4,12 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, beforeEach, describe, it } from 'node:test';
 
-import {
-  discoverPreviewQuestions,
-  isPreviewableQid,
-  previewCourseDirFromEnv,
-  previewServerUrlFromEnv,
-} from '../app/lib/previewDiscovery.ts';
+import { discoverPreviewQuestions, isPreviewableQid } from '../app/lib/previewDiscovery.ts';
 
 async function writeQuestionInfo(courseDir: string, qid: string, infoJson: unknown) {
   const questionDir = path.join(courseDir, 'questions', ...qid.split('/'));
@@ -28,19 +23,6 @@ describe('PrairieLearn preview discovery', () => {
 
   after(async () => {
     await Promise.all(tempRoots.map((root) => fs.rm(root, { force: true, recursive: true })));
-  });
-
-  it('normalizes the configured PrairieLearn preview server URL', () => {
-    assert.equal(
-      previewServerUrlFromEnv({
-        PL_PREVIEW_SERVER_URL: 'http://127.0.0.1:4310/',
-      }),
-      'http://127.0.0.1:4310',
-    );
-  });
-
-  it('resolves the configured preview course directory', () => {
-    assert.equal(previewCourseDirFromEnv({ PL_PREVIEW_COURSE_DIR: courseDir }), courseDir);
   });
 
   it('parses question metadata from course info.json files', async () => {

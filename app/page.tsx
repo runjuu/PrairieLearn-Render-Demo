@@ -1,8 +1,7 @@
 import { PreviewSelector } from './PreviewSelector.tsx';
 import {
+  PREVIEW_SERVER_URL,
   discoverPreviewQuestions,
-  previewCourseDirFromEnv,
-  previewServerUrlFromEnv,
   type PreviewQuestion,
 } from './lib/previewDiscovery.ts';
 import { previewSelectionFromSearchParams } from './lib/previewUrlState.ts';
@@ -12,13 +11,11 @@ export const dynamic = 'force-dynamic';
 type PageSearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function Page({ searchParams }: { searchParams?: PageSearchParams }) {
-  const previewCourseDir = previewCourseDirFromEnv();
-  const previewServerUrl = previewServerUrlFromEnv();
   let questions: PreviewQuestion[] = [];
   let discoveryError: string | null = null;
 
   try {
-    questions = await discoverPreviewQuestions(previewCourseDir);
+    questions = await discoverPreviewQuestions();
   } catch (error) {
     discoveryError = error instanceof Error ? error.message : String(error);
   }
@@ -32,7 +29,7 @@ export default async function Page({ searchParams }: { searchParams?: PageSearch
     <PreviewSelector
       discoveryError={discoveryError}
       initialSelection={initialSelection}
-      previewServerUrl={previewServerUrl}
+      previewServerUrl={PREVIEW_SERVER_URL}
       questions={questions}
     />
   );

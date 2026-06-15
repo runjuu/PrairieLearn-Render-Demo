@@ -9,25 +9,7 @@ export interface PreviewQuestion {
   type: string | null;
 }
 
-interface PreviewServerEnv {
-  [key: string]: string | undefined;
-  PL_PREVIEW_COURSE_DIR?: string;
-  PL_PREVIEW_SERVER_URL?: string;
-}
-
-export function previewServerUrlFromEnv(env: PreviewServerEnv = process.env): string {
-  const rawUrl = env.PL_PREVIEW_SERVER_URL?.trim() || 'http://127.0.0.1:4310';
-  const url = new URL(rawUrl);
-  url.pathname = url.pathname.replace(/\/+$/, '');
-  url.search = '';
-  url.hash = '';
-  return url.toString().replace(/\/$/, '');
-}
-
-export function previewCourseDirFromEnv(env: PreviewServerEnv = process.env): string {
-  const rawDir = env.PL_PREVIEW_COURSE_DIR?.trim() || path.join(process.cwd(), 'demo-course');
-  return path.resolve(rawDir);
-}
+export const PREVIEW_SERVER_URL = 'http://127.0.0.1:4310';
 
 function previewUrlForQid(qid: string): string {
   return `/questions/${qid.split('/').map(encodeURIComponent).join('/')}?variant=1`;
@@ -140,7 +122,7 @@ async function readPreviewQuestion(questionsRoot: string, qidPath: string): Prom
 }
 
 export async function discoverPreviewQuestions(
-  courseDir = previewCourseDirFromEnv(),
+  courseDir = path.join(process.cwd(), 'demo-course'),
 ): Promise<PreviewQuestion[]> {
   const questionsRoot = path.join(courseDir, 'questions');
   const qidPaths = await discoverInfoDirs(questionsRoot, 'info.json');

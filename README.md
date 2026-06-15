@@ -125,30 +125,6 @@ The preview server does not provide a question catalog. Your app should discover
 of previewable questions from a source that fits your product, such as local `info.json` files, an
 editor workspace, a search index, or an application database.
 
-## Use your own course
-
-Point both processes at the same PrairieLearn course directory:
-
-```sh
-PL_PREVIEW_COURSE_DIR=/path/to/course pnpm run render:server
-PL_PREVIEW_COURSE_DIR=/path/to/course pnpm run dev
-```
-
-If the preview server runs somewhere other than `http://127.0.0.1:4310`, tell the Next.js app which
-base URL to use:
-
-```sh
-PL_PREVIEW_SERVER_URL=http://127.0.0.1:4310 pnpm run dev
-```
-
-The preview-server wrapper script also reads:
-
-- `PL_PREVIEW_SERVER_HOST`, default `127.0.0.1`.
-- `PL_PREVIEW_SERVER_PORT`, default `4310`.
-- `PL_PREVIEW_WORKERS_EXECUTION_MODE`, default `native`. The preview server's own default is
-  `container` (Docker-isolated), but this demo pins `native` so it runs without Docker. Set this to
-  `container` to run question code inside a Docker container instead.
-
 ## Building your own preview app
 
 Use this demo as a thin integration reference:
